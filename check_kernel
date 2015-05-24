@@ -110,7 +110,7 @@ def installed_kernel_versions_debian():
     dpkg_out = dpkg_out.strip()
 
     versions = dpkg_out.split('\n')
-    versions = [v for v in versions if re.search('^linux-image-\d', v)]
+    versions = [v for v in versions if re.search('^linux-image-\d.* \S+$', v)]
     versions = [clean_kernel_version(v.split(' ')[1]) for v in versions]
 
     return versions
