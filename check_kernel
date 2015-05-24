@@ -14,13 +14,20 @@ def proc_version():
 
 
 def running_kernel_version():
+    m = re.findall('(?<=Debian )\S+', proc_version())
+    if m:
+        # Note: it's the _second_ match
+        version = clean_kernel_version(m[1])
+        return version
+
     m = re.search('(?<=Linux version )\S+', proc_version())
     if m:
         version = clean_kernel_version(m.group(0))
-    else:
-        version = None
+        return version
 
-    return version
+
+def is_debian():
+    return posixpath.exists('/etc/debian_version')
 
 
 def is_fedora():
@@ -28,8 +35,22 @@ def is_fedora():
 
 
 def installed_kernel_versions():
+    if is_debian():
+        return installed_kernel_versions_debian()
     if is_fedora():
         return installed_kernel_versions_fedora()
+
+
+def installed_kernel_versions_debian():
+    dpkg_out = subprocess.check_output(
+        ['dpkg-query', '--show', '--showformat', '${Package} ${Version}\n', 'linux-image*'])
+    dpkg_out = dpkg_out.strip()
+
+    versions = dpkg_out.split('\n')
+    versions = [v for v in versions if re.search('^linux-image-\d', v)]
+    versions = [clean_kernel_version(v.split(' ')[1]) for v in versions]
+
+    return versions
 
 
 def installed_kernel_versions_fedora():
