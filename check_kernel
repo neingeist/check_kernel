@@ -15,8 +15,16 @@ class Version(object):
     def __str__(self):
         return self.version_str
 
+    def __repr__(self):
+        return 'Version(\'%s\')' % self.version_str
+
     def components(self):
-        return re.split('\.|-', self.version_str)
+        # Split the version into components, by word boundaries, or a
+        # change between numbers and non-numbers and vice-versa. re.split()
+        # does not work on zero-length delimiters, so we have to use a
+        # sub+split.
+        return re.sub(r'\b|(?<=\d)(?=\D)|(?<=\D)(?=\d)', '\n',
+                      self.version_str).split('\n')
 
     def __eq__(self, other):
         return self.version_str == other.version_str
@@ -46,16 +54,25 @@ def proc_version():
 
 
 def running_kernel_version():
-    m = re.findall('(?<=Debian )\S+', proc_version())
-    if m:
-        # Note: it's the _second_ match
-        version = clean_kernel_version(m[1])
-        return version
+    proc_version_ = proc_version()
 
-    m = re.search('(?<=Linux version )\S+', proc_version())
-    if m:
-        version = clean_kernel_version(m.group(0))
-        return version
+    if re.search('Debian', proc_version_):
+        # Remove gcc version first
+        proc_version_ = re.sub('\(gcc[^(]+\(Debian [^)]+\)\s+\)', '',
+                               proc_version_)
+
+        # Then look for the Debian kernel version
+        m = re.search('(?<=Debian )(\S+)', proc_version_)
+        if m:
+            version_str = m.group(1).strip('()')
+            version = clean_kernel_version(version_str)
+            return version
+
+    else:
+        m = re.search('(?<=Linux version )(\S+)', proc_version_)
+        if m:
+            version = clean_kernel_version(m.group(0))
+            return version
 
 
 def is_debian():

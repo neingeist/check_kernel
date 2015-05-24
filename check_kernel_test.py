@@ -38,6 +38,10 @@ class RunningKernelVersionTestCase(unittest.TestCase):
             self.assertEqual(check_kernel.running_kernel_version(),
                              Version('3.16.7-ckt9-3~deb8u1'))
 
+        with unittest.mock.patch.object(check_kernel, 'proc_version', return_value='Linux version 2.6.32-5-amd64 (Debian 2.6.32-48squeeze11) (ben@decadent.org.uk) (gcc version 4.3.5 (Debian 4.3.5-4) ) #1 SMP Wed Feb 18 13:14:10 UTC 2015'):
+            self.assertEqual(check_kernel.running_kernel_version(),
+                             Version('2.6.32-48squeeze11'))
+
 
 class VersionTestCase(unittest.TestCase):
     def testStr(self):
@@ -45,11 +49,14 @@ class VersionTestCase(unittest.TestCase):
 
     def testComparingTrivial(self):
         self.assertEqual(Version('1.0'), Version('1.0'))
+        self.assertEqual(Version('2.6.32-5foo1'), Version('2.6.32-5foo1'))
+
         self.assertGreater(Version('2.0'), Version('1.0'))
 
     def testComparingNonTrivial(self):
         self.assertGreater(Version('2.12'), Version('2.2'))
         self.assertGreater(Version('3.12-12'), Version('3.12-2'))
+        self.assertGreater(Version('2.6.32-5foo1'), Version('2.6.32-5foo0'))
 
 
 if __name__ == '__main__':
