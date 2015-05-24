@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from __future__ import division, print_function
+from __future__ import division
 import posixpath
 import re
 import subprocess
@@ -39,8 +39,9 @@ class Version(object):
 
 
 def proc_version():
-    with open('/proc/version', 'r') as v:
-        proc_version = v.next()
+    v = open('/proc/version', 'r')
+    proc_version = v.next()
+    v.close()
     return proc_version
 
 
@@ -64,16 +65,25 @@ def is_debian():
 def is_fedora():
     return posixpath.exists('/etc/fedora-release')
 
+def is_redhat():
+    return posixpath.exists('/etc/redhat-release')
+
 
 def installed_kernel_versions():
     if is_debian():
         return installed_kernel_versions_debian()
-    if is_fedora():
+    if is_fedora() or is_redhat():
         return installed_kernel_versions_fedora()
+    return [None]
+
+
+def check_output(cmd):
+    """Emulate subprocess.check_output for ancient Python versions"""
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
 
 
 def installed_kernel_versions_debian():
-    dpkg_out = subprocess.check_output(
+    dpkg_out = check_output(
         ['dpkg-query', '--show', '--showformat', '${Package} ${Version}\n', 'linux-image*'])
     dpkg_out = dpkg_out.strip()
 
@@ -85,7 +95,7 @@ def installed_kernel_versions_debian():
 
 
 def installed_kernel_versions_fedora():
-    rpm_out = subprocess.check_output(
+    rpm_out = check_output(
         ['rpm', '--queryformat=%{VERSION}-%{RELEASE}\n', '-q', 'kernel'])
     rpm_out = rpm_out.strip()
 
@@ -117,11 +127,11 @@ def main():
     installed = installed_kernel_version()
 
     if running == installed:
-        print('KERNEL OK - running version {}'.format(running))
+        print('KERNEL OK - running version %s' % running)
         sys.exit(0)
     else:
-        print('KERNEL WARNING - running version {}, installed: {}'
-              .format(running, installed))
+        print('KERNEL WARNING - running version %s, installed: %s' % \
+              (running, installed))
         sys.exit(1)
 
 
