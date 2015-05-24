@@ -1,10 +1,38 @@
 #!/usr/bin/python
 from __future__ import division, print_function
-from distutils.version import LooseVersion
 import posixpath
 import re
 import subprocess
 import sys
+
+
+class Version(object):
+    """Crude version abstraction for systems without distutils.version"""
+
+    def __init__(self, version_str):
+        self.version_str = version_str
+
+    def components(self):
+        return re.split('\.|-', self.version_str)
+
+    def __eq__(self, other):
+        return self.version_str == other.version_str
+
+    def __gt__(self, other):
+        def num_gt(str_, str_other):
+            m = re.search('^\d+', str_)
+            m_other = re.search('^\d+', str_other)
+            if m and m_other:
+                return int(m.group(0)) > int(m_other.group(0))
+            else:
+                return str_ > str_other
+
+        for self_c, other_c in zip(self.components(), other.components()):
+            if num_gt(self_c, other_c):
+                return True
+        return False
+
+    # Note: not using functools.total_ordering to support Python 2.6
 
 
 def proc_version():
@@ -74,7 +102,7 @@ def clean_kernel_version(version):
     # Fedora release
     version = re.sub('\.fc\d+', '', version)
 
-    return LooseVersion(version)
+    return Version(version)
 
 
 def main():
