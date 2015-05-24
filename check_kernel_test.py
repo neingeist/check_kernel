@@ -40,6 +40,9 @@ class RunningKernelVersionTestCase(unittest.TestCase):
 
 
 class VersionTestCase(unittest.TestCase):
+    def testStr(self):
+        self.assertEqual(str(Version('1.0')), '1.0')
+
     def testComparingTrivial(self):
         self.assertEqual(Version('1.0'), Version('1.0'))
         self.assertGreater(Version('2.0'), Version('1.0'))

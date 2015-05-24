@@ -12,6 +12,9 @@ class Version(object):
     def __init__(self, version_str):
         self.version_str = version_str
 
+    def __str__(self):
+        return self.version_str
+
     def components(self):
         return re.split('\.|-', self.version_str)
 
