@@ -39,11 +39,16 @@ class Version(object):
                 return str_ > str_other
 
         for self_c, other_c in zip(self.components(), other.components()):
-            if num_gt(self_c, other_c):
-                return True
+            if self_c == other_c:
+                continue
+            else:
+                return num_gt(self_c, other_c)
         return False
 
     # Note: not using functools.total_ordering to support Python 2.6
+
+    def __lt__(self, other):
+        return not (self == other) and not (self > other)
 
 
 def proc_version():

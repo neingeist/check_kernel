@@ -58,6 +58,18 @@ class VersionTestCase(unittest.TestCase):
         self.assertGreater(Version('3.12-12'), Version('3.12-2'))
         self.assertGreater(Version('2.6.32-5foo1'), Version('2.6.32-5foo0'))
 
+        self.assertGreater(Version('3.16.7-ckt9-3~deb8u1'),
+                           Version('3.14.15-2'))
+        self.assertLess(Version('3.14.15-2'),
+                        Version('3.16.7-ckt9-3~deb8u1'))
+
+    def testSorting(self):
+        l = [Version('3.16.5-1'), Version('3.2.60-1+deb7u3'),
+             Version('3.16.3-2'), Version('3.16.7-ckt9-3~deb8u1'),
+             Version('3.14.15-2')]
+        self.assertEqual(sorted(l)[0], Version('3.2.60-1+deb7u3'))
+        self.assertEqual(sorted(l)[-1], Version('3.16.7-ckt9-3~deb8u1'))
+
 
 if __name__ == '__main__':
     unittest.main()
