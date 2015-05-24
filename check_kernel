@@ -87,6 +87,7 @@ def is_debian():
 def is_fedora():
     return posixpath.exists('/etc/fedora-release')
 
+
 def is_redhat():
     return posixpath.exists('/etc/redhat-release')
 
@@ -106,7 +107,9 @@ def check_output(cmd):
 
 def installed_kernel_versions_debian():
     dpkg_out = check_output(
-        ['dpkg-query', '--show', '--showformat', '${Package} ${Version}\n', 'linux-image*'])
+        ['dpkg-query',
+         '--show', '--showformat', '${Package} ${Version}\n',
+         'linux-image*'])
     dpkg_out = dpkg_out.strip()
 
     versions = dpkg_out.split('\n')
@@ -142,7 +145,8 @@ def clean_kernel_version(version):
 
 def main():
     if len(sys.argv) > 1:
-        print('This plugin no longer takes the expected kernel version as an argument')
+        print('This plugin no longer takes the expected kernel version as' +
+              'an argument')
         sys.exit(3)
 
     running = running_kernel_version()
@@ -152,7 +156,7 @@ def main():
         print('KERNEL OK - running version %s' % running)
         sys.exit(0)
     else:
-        print('KERNEL WARNING - running version %s, installed: %s' % \
+        print('KERNEL WARNING - running version %s, installed: %s' %
               (running, installed))
         sys.exit(1)
 
