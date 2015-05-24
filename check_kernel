@@ -78,6 +78,10 @@ def clean_kernel_version(version):
 
 
 def main():
+    if len(sys.argv) > 1:
+        print('This plugin no longer takes the expected kernel version as an argument')
+        sys.exit(3)
+
     running = running_kernel_version()
     installed = installed_kernel_version()
 
