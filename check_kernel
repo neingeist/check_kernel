@@ -1,0 +1,63 @@
+#!/usr/bin/python
+from __future__ import division, print_function
+from distutils.version import LooseVersion
+import re
+import subprocess
+import sys
+
+
+def proc_version():
+    with open('/proc/version', 'r') as v:
+        proc_version = v.next()
+    return proc_version
+
+
+def running_kernel_version():
+    m = re.search('(?<=Linux version )\S+', proc_version())
+    if m:
+        version = clean_kernel_version(m.group(0))
+    else:
+        version = None
+
+    return version
+
+
+def installed_kernel_versions():
+    rpm_out = subprocess.check_output(
+        ['rpm', '--queryformat=%{VERSION}-%{RELEASE}\n', '-q', 'kernel'])
+    rpm_out = rpm_out.strip()
+
+    versions = rpm_out.split('\n')
+    versions = [clean_kernel_version(v) for v in versions]
+
+    return versions
+
+
+def installed_kernel_version():
+    return sorted(installed_kernel_versions())[-1]
+
+
+def clean_kernel_version(version):
+    # arch
+    version = re.sub('\.(x86_64|i[3-6]86)', '', version)
+    # Fedora release
+    version = re.sub('\.fc\d+', '', version)
+
+    return LooseVersion(version)
+
+
+def main():
+    running = running_kernel_version()
+    installed = installed_kernel_version()
+
+    if running == installed:
+        print('KERNEL OK - running version {}'.format(running))
+        sys.exit(0)
+    else:
+        print('KERNEL WARNING - running version {}, installed: {}'
+              .format(running, installed))
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()
