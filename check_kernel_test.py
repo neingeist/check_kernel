@@ -68,7 +68,8 @@ class VersionTestCase(unittest.TestCase):
         versions = [('2.2', '2.12'),
                     ('3.12-2', '3.12-12'),
                     ('2.6.32-5foo0', '2.6.32-5foo1'),
-                    ('3.14.15-2', '3.16.7-ckt9-3~deb8u1')]
+                    ('3.4.15-2', '3.16.7-ckt9-3~deb8u1'),
+                    ('3.2.4', '3.2.4+2')]
 
         for lower, greater in versions:
             self.assertGreater(Version(greater), Version(lower))
