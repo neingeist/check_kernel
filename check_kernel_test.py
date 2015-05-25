@@ -18,11 +18,11 @@ def patch_object(obj, function, return_value=None):
     obj.__dict__[function] = our_function
 
 
-# Patch up unittest
-if not hasattr(unittest, 'assertGreater'):
-    unittest.assertGreater = lambda self, a, b: self.assertTrue(a > b)
-if not hasattr(unittest, 'assertLess'):
-    unittest.assertLess = lambda self, a, b: self.assertTrue(a < b)
+# Patch up unittest.TestCase
+if not hasattr(unittest.TestCase, 'assertGreater'):
+    unittest.TestCase.assertGreater = lambda self, a, b: self.assertTrue(a > b)
+if not hasattr(unittest.TestCase, 'assertLess'):
+    unittest.TestCase.assertLess = lambda self, a, b: self.assertTrue(a < b)
 
 
 class CleanKernelVersionTestCase(unittest.TestCase):
