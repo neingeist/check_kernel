@@ -7,6 +7,7 @@ import unittest
 from check_kernel import clean_kernel_version, Version
 import check_kernel
 
+
 def patch_object(obj, function, return_value=None):
     """A simple replacement for unittest.mock.patch_object()
 
@@ -15,6 +16,13 @@ def patch_object(obj, function, return_value=None):
     def our_function():
         return return_value
     obj.__dict__[function] = our_function
+
+
+# Patch up unittest
+if not hasattr(unittest, 'assertGreater'):
+    unittest.assertGreater = lambda self, a, b: self.assertTrue(a > b)
+if not hasattr(unittest, 'assertLess'):
+    unittest.assertLess = lambda self, a, b: self.assertTrue(a < b)
 
 
 class CleanKernelVersionTestCase(unittest.TestCase):
