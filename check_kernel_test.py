@@ -65,14 +65,14 @@ class VersionTestCase(unittest.TestCase):
         self.assertGreater(Version('2.0'), Version('1.0'))
 
     def testComparingNonTrivial(self):
-        self.assertGreater(Version('2.12'), Version('2.2'))
-        self.assertGreater(Version('3.12-12'), Version('3.12-2'))
-        self.assertGreater(Version('2.6.32-5foo1'), Version('2.6.32-5foo0'))
+        versions = [('2.2', '2.12'),
+                    ('3.12-2', '3.12-12'),
+                    ('2.6.32-5foo0', '2.6.32-5foo1'),
+                    ('3.14.15-2', '3.16.7-ckt9-3~deb8u1')]
 
-        self.assertGreater(Version('3.16.7-ckt9-3~deb8u1'),
-                           Version('3.14.15-2'))
-        self.assertLess(Version('3.14.15-2'),
-                        Version('3.16.7-ckt9-3~deb8u1'))
+        for lower, greater in versions:
+            self.assertGreater(Version(greater), Version(lower))
+            self.assertLess(Version(lower), Version(greater))
 
     def testSorting(self):
         l = [Version('3.16.5-1'), Version('3.2.60-1+deb7u3'),
