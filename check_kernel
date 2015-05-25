@@ -52,9 +52,16 @@ class Version(object):
 
 
 def proc_version():
+    """Return the content of /proc/version"""
+
+    proc_version = None
+
+    # Not using a with statement here, to support Python 2.4
     v = open('/proc/version', 'r')
-    proc_version = v.next()
-    v.close()
+    try:
+        proc_version = v.read()
+    finally:
+        v.close()
     return proc_version
 
 
@@ -122,7 +129,7 @@ def installed_kernel_versions_debian():
 def installed_kernel_versions_fedora():
     rpm_out = check_output(
         ['rpm', '--queryformat=%{VERSION}-%{RELEASE}\n', '-q', 'kernel'])
-    rpm_out = rpm_out.strip()
+    rpm_out = rpm_out.decode('ascii', 'ignore').strip()
 
     versions = rpm_out.split('\n')
     versions = [clean_kernel_version(v) for v in versions]
