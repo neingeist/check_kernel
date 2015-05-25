@@ -6,6 +6,7 @@ python:
   - "3.3"
   - "3.4"
   - "nightly"
+sudo: false
 
 # command to run tests
 script: py.test
