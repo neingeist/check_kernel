@@ -2,16 +2,19 @@
 from __future__ import division
 import sys
 
-# Require Python 3 for unittest.mock
-if sys.version_info[0] < 3:
-    print("This script requires Python version 3")
-    sys.exit(1)
-
 import unittest
-import unittest.mock
 
 from check_kernel import clean_kernel_version, Version
 import check_kernel
+
+def patch_object(obj, function, return_value=None):
+    """A simple replacement for unittest.mock.patch_object()
+
+    It is not meant to used with the 'with' statement or as a decorator, unlike
+    unittest.mock.patch_object(). To support Python <= 3.2."""
+    def our_function():
+        return return_value
+    obj.__dict__[function] = our_function
 
 
 class CleanKernelVersionTestCase(unittest.TestCase):
@@ -29,18 +32,18 @@ class CleanKernelVersionTestCase(unittest.TestCase):
 
 class RunningKernelVersionTestCase(unittest.TestCase):
     def testFedora(self):
-        with unittest.mock.patch.object(check_kernel, 'proc_version', return_value='Linux version 4.0.3-301.fc22.x86_64 (mockbuild@bkernel02.phx2.fedoraproject.org) (gcc version 5.1.1 20150422 (Red Hat 5.1.1-1) (GCC) ) #1 SMP Thu May 21 13:10:33 UTC 2015'):
-            self.assertEqual(check_kernel.running_kernel_version(),
-                             Version('4.0.3-301'))
+        patch_object(check_kernel, 'proc_version', return_value='Linux version 4.0.3-301.fc22.x86_64 (mockbuild@bkernel02.phx2.fedoraproject.org) (gcc version 5.1.1 20150422 (Red Hat 5.1.1-1) (GCC) ) #1 SMP Thu May 21 13:10:33 UTC 2015')
+        self.assertEqual(check_kernel.running_kernel_version(),
+                         Version('4.0.3-301'))
 
     def testDebian(self):
-        with unittest.mock.patch.object(check_kernel, 'proc_version', return_value='Linux version 3.16.0-4-amd64 (debian-kernel@lists.debian.org) (gcc version 4.8.4 (Debian 4.8.4-1) ) #1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)'):
-            self.assertEqual(check_kernel.running_kernel_version(),
-                             Version('3.16.7-ckt9-3~deb8u1'))
+        patch_object(check_kernel, 'proc_version', return_value='Linux version 3.16.0-4-amd64 (debian-kernel@lists.debian.org) (gcc version 4.8.4 (Debian 4.8.4-1) ) #1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)')
+        self.assertEqual(check_kernel.running_kernel_version(),
+                         Version('3.16.7-ckt9-3~deb8u1'))
 
-        with unittest.mock.patch.object(check_kernel, 'proc_version', return_value='Linux version 2.6.32-5-amd64 (Debian 2.6.32-48squeeze11) (ben@decadent.org.uk) (gcc version 4.3.5 (Debian 4.3.5-4) ) #1 SMP Wed Feb 18 13:14:10 UTC 2015'):
-            self.assertEqual(check_kernel.running_kernel_version(),
-                             Version('2.6.32-48squeeze11'))
+        patch_object(check_kernel, 'proc_version', return_value='Linux version 2.6.32-5-amd64 (Debian 2.6.32-48squeeze11) (ben@decadent.org.uk) (gcc version 4.3.5 (Debian 4.3.5-4) ) #1 SMP Wed Feb 18 13:14:10 UTC 2015')
+        self.assertEqual(check_kernel.running_kernel_version(),
+                         Version('2.6.32-48squeeze11'))
 
 
 class VersionTestCase(unittest.TestCase):
