@@ -45,6 +45,10 @@ class RunningKernelVersionTestCase(unittest.TestCase):
                          Version('4.0.3-301'))
 
     def testDebian(self):
+        patch_object(check_kernel, 'proc_version', return_value='Linux version 4.19.0-5-amd64 (debian-kernel@lists.debian.org) (gcc version 8.3.0 (Debian 8.3.0-7)) #1 SMP Debian 4.19.37-5 (2019-06-19)')
+        self.assertEqual(check_kernel.running_kernel_version(),
+                         Version('4.19.37-5'))
+
         patch_object(check_kernel, 'proc_version', return_value='Linux version 3.16.0-4-amd64 (debian-kernel@lists.debian.org) (gcc version 4.8.4 (Debian 4.8.4-1) ) #1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)')
         self.assertEqual(check_kernel.running_kernel_version(),
                          Version('3.16.7-ckt9-3~deb8u1'))
