@@ -117,7 +117,7 @@ def installed_kernel_versions_debian():
         ['dpkg-query',
          '--show', '--showformat', '${Package} ${Version}\n',
          'linux-image*'])
-    dpkg_out = dpkg_out.strip()
+    dpkg_out = dpkg_out.decode('ascii', 'ignore').strip()
 
     versions = dpkg_out.split('\n')
     versions = [v for v in versions if re.search('^linux-image-\d.* \S+$', v)]
