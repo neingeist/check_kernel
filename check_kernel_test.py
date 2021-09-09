@@ -57,6 +57,10 @@ class RunningKernelVersionTestCase(unittest.TestCase):
         self.assertEqual(check_kernel.running_kernel_version(),
                          Version('2.6.32-48squeeze11'))
 
+        patch_object(check_kernel, 'proc_version', return_value='Linux version 5.10.0-8-amd64 (debian-kernel@lists.debian.org) (gcc-10 (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2) #1 SMP Debian 5.10.46-4 (2021-08-03)')
+        self.assertEqual(check_kernel.running_kernel_version(),
+                         Version('5.10.46-4'))
+
 
 class VersionTestCase(unittest.TestCase):
     def testStr(self):

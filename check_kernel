@@ -70,8 +70,7 @@ def running_kernel_version():
 
     if re.search('Debian', proc_version_):
         # Remove gcc version first
-        proc_version_ = re.sub('\(gcc[^(]+\(Debian [^)]+\)\s*\)', '',
-                               proc_version_)
+        proc_version_ = re.sub('\(gcc.*?\)', '', proc_version_)
 
         # Then look for the Debian kernel version
         m = re.search('(?<=Debian )(\S+)', proc_version_)
