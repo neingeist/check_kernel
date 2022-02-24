@@ -32,8 +32,18 @@ class CleanKernelVersionTestCase(unittest.TestCase):
             self.assertEqual(clean_kernel_version(dirty), Version(clean))
 
     def testFedora(self):
-        versions = [('4.0.4-301.fc22.x86_64', '4.0.4-301'),
-                    ('4.0.0-1.fc22', '4.0.0-1')]
+        versions = [
+                ('4.0.4-301.fc22.x86_64', '4.0.4-301'),
+                ('4.0.0-1.fc22', '4.0.0-1'),
+        ]
+        for dirty, clean in versions:
+            self.assertEqual(clean_kernel_version(dirty), Version(clean))
+
+    def testRHEL(self):
+        versions = [
+                ('4.18.0-348.12.2.el8_5', '4.18.0-348.12.2'),
+                ('4.18.0-348.el8.0.2', '4.18.0-348')
+        ]
         for dirty, clean in versions:
             self.assertEqual(clean_kernel_version(dirty), Version(clean))
 
@@ -73,11 +83,13 @@ class VersionTestCase(unittest.TestCase):
         self.assertGreater(Version('2.0'), Version('1.0'))
 
     def testComparingNonTrivial(self):
+        # lower < greater
         versions = [('2.2', '2.12'),
                     ('3.12-2', '3.12-12'),
                     ('2.6.32-5foo0', '2.6.32-5foo1'),
                     ('3.4.15-2', '3.16.7-ckt9-3~deb8u1'),
-                    ('3.2.4', '3.2.4+2')]
+                    ('3.2.4', '3.2.4+2'),
+                    ('4.18.0-348', '4.18.0-348.12.2')]
 
         for lower, greater in versions:
             self.assertGreater(Version(greater), Version(lower))

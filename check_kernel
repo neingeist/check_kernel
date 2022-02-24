@@ -145,6 +145,8 @@ def clean_kernel_version(version):
     version = re.sub('\.(x86_64|i[3-6]86)', '', version)
     # Fedora release
     version = re.sub('\.fc\d+', '', version)
+    # RHEL release
+    version = re.sub('\.el[\d\._]+$', '', version)
 
     return Version(version)
 
