@@ -26,8 +26,13 @@ if not hasattr(unittest.TestCase, 'assertLess'):
 
 
 class CleanKernelVersionTestCase(unittest.TestCase):
-    def testDebian(self):
+    def testDebianVanilla(self):
         versions = [('3.16.7-ckt9-3~deb8u2', '3.16.7-ckt9-3~deb8u2')]
+        for dirty, clean in versions:
+            self.assertEqual(clean_kernel_version(dirty), Version(clean))
+
+    def testDebianProxmox(self):
+        versions = [('5.13.19-14', '5.13.19-14')]
         for dirty, clean in versions:
             self.assertEqual(clean_kernel_version(dirty), Version(clean))
 
@@ -44,7 +49,7 @@ class RunningKernelVersionTestCase(unittest.TestCase):
         self.assertEqual(check_kernel.running_kernel_version(),
                          Version('4.0.3-301'))
 
-    def testDebian(self):
+    def testDebianVanilla(self):
         patch_object(check_kernel, 'proc_version', return_value='Linux version 4.19.0-5-amd64 (debian-kernel@lists.debian.org) (gcc version 8.3.0 (Debian 8.3.0-7)) #1 SMP Debian 4.19.37-5 (2019-06-19)')
         self.assertEqual(check_kernel.running_kernel_version(),
                          Version('4.19.37-5'))
@@ -60,6 +65,15 @@ class RunningKernelVersionTestCase(unittest.TestCase):
         patch_object(check_kernel, 'proc_version', return_value='Linux version 5.10.0-8-amd64 (debian-kernel@lists.debian.org) (gcc-10 (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2) #1 SMP Debian 5.10.46-4 (2021-08-03)')
         self.assertEqual(check_kernel.running_kernel_version(),
                          Version('5.10.46-4'))
+
+    def testDebianProxmox(self):
+        patch_object(check_kernel, 'proc_version', return_value='Linux version 5.4.162-1-pve (build@proxmox) (gcc version 8.3.0 (Debian 8.3.0-6)) #1 SMP PVE 5.4.162-2 (Thu, 20 Jan 2022 16:38:53 +0100)')
+        self.assertEqual(check_kernel.running_kernel_version(),
+                         Version('5.4.162-2'))
+
+        patch_object(check_kernel, 'proc_version', return_value='Linux version 5.13.19-6-pve (build@proxmox) (gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2) #1 SMP PVE 5.13.19-14 (Thu, 10 Mar 2022 16:24:52 +0100)')
+        self.assertEqual(check_kernel.running_kernel_version(),
+                         Version('5.13.19-14'))
 
 
 class VersionTestCase(unittest.TestCase):
