@@ -73,7 +73,7 @@ def running_kernel_version():
         proc_version_ = re.sub('\(gcc.*?\)', '', proc_version_)
 
         # Then look for the Debian kernel version
-        m = re.search('(?<=Debian )(\S+)', proc_version_)
+        m = re.search('((?<=Debian )(\S+)|(?<=PVE )(\S+))', proc_version_)
         if m:
             version_str = m.group(1).strip('()')
             version = clean_kernel_version(version_str)
@@ -99,8 +99,17 @@ def is_redhat():
 
 
 def installed_kernel_versions():
+    """
+    Debian-based kernels come in different flavors.
+
+    On some of them, like Proxmox' PVE kernels, special care has to be taken
+    when selecting the right packages to run `dpkg-query` on.
+    """
     if is_debian():
-        return installed_kernel_versions_debian()
+        return \
+          installed_kernel_versions_debian(pkgname='linux-image') \
+          or installed_kernel_versions_debian(pkgname='pve-kernel',
+                                              pkgquery='pve-kernel*-pve')
     if is_fedora() or is_redhat():
         return installed_kernel_versions_fedora()
     return [None]
@@ -108,18 +117,22 @@ def installed_kernel_versions():
 
 def check_output(cmd):
     """Emulate subprocess.check_output for ancient Python versions"""
-    return subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+    return subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    ).communicate()[0]
 
 
-def installed_kernel_versions_debian():
+def installed_kernel_versions_debian(pkgname='linux-image', pkgquery=None):
+    if not pkgquery:
+        pkgquery = '%s*' % pkgname
     dpkg_out = check_output(
         ['dpkg-query',
          '--show', '--showformat', '${Package} ${Version}\n',
-         'linux-image*'])
+         pkgquery])
     dpkg_out = dpkg_out.decode('ascii', 'ignore').strip()
 
     versions = dpkg_out.split('\n')
-    versions = [v for v in versions if re.search('^linux-image-\d.* \S+$', v)]
+    versions = [v for v in versions if re.search('^%s-\d.* \S+$' % pkgname, v)]
     versions = [clean_kernel_version(v.split(' ')[1]) for v in versions]
 
     return versions
@@ -137,7 +150,11 @@ def installed_kernel_versions_fedora():
 
 
 def installed_kernel_version():
-    return sorted(installed_kernel_versions())[-1]
+    installed = sorted(installed_kernel_versions())
+    if not installed:
+        print('KERNEL UNKNOWN - unable to determine running kernel version')
+        sys.exit(3)
+    return installed[-1]
 
 
 def clean_kernel_version(version):
