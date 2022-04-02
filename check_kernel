@@ -152,7 +152,7 @@ def installed_kernel_versions_fedora():
 def installed_kernel_version():
     installed = sorted(installed_kernel_versions())
     if not installed:
-        print('KERNEL UNKNOWN - unable to determine running kernel version')
+        print('KERNEL UNKNOWN - unable to determine installed kernel version')
         sys.exit(3)
     return installed[-1]
 
