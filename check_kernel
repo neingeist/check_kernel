@@ -31,8 +31,8 @@ class Version(object):
 
     def __gt__(self, other):
         def num_gt(str_, str_other):
-            m = re.search('^\d+', str_)
-            m_other = re.search('^\d+', str_other)
+            m = re.search(r'^\d+', str_)
+            m_other = re.search(r'^\d+', str_other)
             if m and m_other:
                 return int(m.group(0)) > int(m_other.group(0))
             else:
@@ -68,19 +68,19 @@ def proc_version():
 def running_kernel_version():
     proc_version_ = proc_version()
 
-    if re.search('Debian', proc_version_):
+    if re.search(r'Debian', proc_version_):
         # Remove gcc version first
-        proc_version_ = re.sub('\(gcc.*?\)', '', proc_version_)
+        proc_version_ = re.sub(r'\(gcc.*?\)', '', proc_version_)
 
         # Then look for the Debian kernel version
-        m = re.search('((?<=Debian )(\S+)|(?<=PVE )(\S+))', proc_version_)
+        m = re.search(r'((?<=Debian )(\S+)|(?<=PVE )(\S+))', proc_version_)
         if m:
             version_str = m.group(1).strip('()')
             version = clean_kernel_version(version_str)
             return version
 
     else:
-        m = re.search('(?<=Linux version )(\S+)', proc_version_)
+        m = re.search(r'(?<=Linux version )(\S+)', proc_version_)
         if m:
             version = clean_kernel_version(m.group(0))
             return version
@@ -132,7 +132,7 @@ def installed_kernel_versions_debian(pkgname='linux-image', pkgquery=None):
     dpkg_out = dpkg_out.decode('ascii', 'ignore').strip()
 
     versions = dpkg_out.split('\n')
-    versions = [v for v in versions if re.search('^%s-\d.* \S+$' % pkgname, v)]
+    versions = [v for v in versions if re.search(r'^%s-\d.* \S+$' % pkgname, v)]
     versions = [clean_kernel_version(v.split(' ')[1]) for v in versions]
 
     return versions
@@ -159,11 +159,11 @@ def installed_kernel_version():
 
 def clean_kernel_version(version):
     # arch
-    version = re.sub('\.(x86_64|i[3-6]86)', '', version)
+    version = re.sub(r'\.(x86_64|i[3-6]86)', '', version)
     # Fedora release
-    version = re.sub('\.fc\d+', '', version)
+    version = re.sub(r'\.fc\d+', '', version)
     # RHEL release
-    version = re.sub('\.el[\d\._]+$', '', version)
+    version = re.sub(r'\.el[\d\._]+$', '', version)
 
     return Version(version)
 
