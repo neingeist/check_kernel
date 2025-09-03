@@ -76,6 +76,10 @@ class RunningKernelVersionTestCase(unittest.TestCase):
         self.assertEqual(check_kernel.running_kernel_version(),
                          Version('5.10.46-4'))
 
+        patch_object(check_kernel, 'proc_version', return_value='Linux version 6.12.41+deb13-amd64 (debian-kernel@lists.debian.org) (x86_64-linux-gnu-gcc-14 (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44) #1 SMP PREEMPT_DYNAMIC Debian 6.12.41-1 (2025-08-12)')
+        self.assertEqual(check_kernel.running_kernel_version(),
+                         Version('6.12.41-1'))
+
     def testDebianProxmox(self):
         patch_object(check_kernel, 'proc_version', return_value='Linux version 5.4.162-1-pve (build@proxmox) (gcc version 8.3.0 (Debian 8.3.0-6)) #1 SMP PVE 5.4.162-2 (Thu, 20 Jan 2022 16:38:53 +0100)')
         self.assertEqual(check_kernel.running_kernel_version(),
